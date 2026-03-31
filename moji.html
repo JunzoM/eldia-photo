@@ -3,362 +3,299 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>手書き文字 解析</title>
+<title>ELDIA Scanner</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  min-height: 100vh;
-  background: #0f0f13;
-  font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-  color: #f0ede8;
-  padding-bottom: 60px;
-}
-header {
-  padding: 24px 20px 16px;
-  border-bottom: 1px solid #222;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  position: sticky;
-  top: 0;
-  background: #0f0f13;
-  z-index: 10;
-}
-header .title { font-size: 17px; font-weight: 700; }
-header .sub { font-size: 11px; color: #666; margin-top: 2px; }
-main { padding: 20px; max-width: 480px; margin: 0 auto; }
-
-/* APIキーエリア */
-.apikey-section {
-  background: #151519;
-  border: 1px solid #2a2a35;
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 20px;
-}
-.apikey-label { font-size: 11px; color: #666; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 8px; }
-.apikey-row { display: flex; gap: 8px; }
-.apikey-input {
-  flex: 1;
-  background: #0f0f13;
-  border: 1px solid #333;
-  border-radius: 8px;
-  color: #f0ede8;
-  font-size: 13px;
-  padding: 10px 12px;
-  font-family: monospace;
-  outline: none;
-}
-.apikey-input:focus { border-color: #4f8ef7; }
-.apikey-save {
-  padding: 10px 16px;
-  background: #1e2a40;
-  border: 1px solid #2a4060;
-  border-radius: 8px;
-  color: #4f8ef7;
-  font-size: 13px;
-  cursor: pointer;
-  white-space: nowrap;
-  font-family: inherit;
-}
-.apikey-status { font-size: 11px; color: #7a9a60; margin-top: 8px; }
-
-/* 撮影エリア */
-.drop-area {
-  border: 2px dashed #333;
-  border-radius: 16px;
-  padding: 40px 24px;
-  text-align: center;
-  cursor: pointer;
-  background: #151519;
-  transition: border-color 0.2s;
-}
-.drop-area:active { border-color: #4f8ef7; }
-.drop-icon { font-size: 44px; margin-bottom: 10px; }
-.drop-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-.drop-sub { font-size: 12px; color: #555; line-height: 1.6; }
-
-.btn {
-  display: block;
-  width: 100%;
-  margin-top: 12px;
-  padding: 14px 0;
-  border-radius: 12px;
-  background: #1a1a22;
-  border: 1px solid #333;
-  color: #aaa;
-  font-size: 14px;
-  cursor: pointer;
-  font-family: inherit;
-  text-align: center;
-}
-.btn-primary {
-  background: linear-gradient(135deg, #4f8ef7, #7b5cf5);
-  border: none;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-  padding: 16px 0;
-  border-radius: 14px;
-  margin-top: 14px;
-}
-.btn-ghost {
-  background: transparent;
-  border: 1px solid #282828;
-  color: #555;
-  margin-top: 8px;
-}
-
-.preview-wrap { position: relative; }
-.preview-img { width: 100%; border-radius: 14px; max-height: 360px; object-fit: cover; display: block; border: 1px solid #222; }
-.close-btn {
-  position: absolute; top: 10px; right: 10px;
-  background: rgba(0,0,0,0.75); border: none; border-radius: 50%;
-  width: 34px; height: 34px; color: #fff; font-size: 16px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
-
-.spinner-wrap { text-align: center; padding: 32px 0; }
-.spinner {
-  width: 40px; height: 40px; border-radius: 50%;
-  border: 3px solid #333; border-top-color: #4f8ef7;
-  animation: spin 0.8s linear infinite; margin: 0 auto 14px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.error-box {
-  margin-top: 14px; padding: 14px 16px;
-  background: #1f1215; border: 1px solid #5a2233;
-  border-radius: 12px; font-size: 13px; color: #e07090;
-  word-break: break-all; line-height: 1.6;
-}
-.result-card {
-  margin-top: 20px; background: #151519;
-  border: 1px solid #272730; border-radius: 16px; overflow: hidden;
-}
-.result-label {
-  padding: 12px 16px; border-bottom: 1px solid #222;
-  font-size: 11px; color: #666; font-weight: 700; letter-spacing: 0.1em;
-}
-.result-text { padding: 16px; font-size: 16px; line-height: 1.9; white-space: pre-wrap; }
-.note-box {
-  margin-top: 10px; background: #131610; border: 1px solid #252a1e;
-  border-radius: 12px; padding: 12px 16px; font-size: 12px; color: #7a9a60; line-height: 1.7;
-}
-.hidden { display: none !important; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;background:#0e0f11;color:#e8eaf0;min-height:100dvh;display:flex;flex-direction:column}
+header{padding:14px 16px;background:#16181c;border-bottom:1px solid #2a2d35;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo{width:30px;height:30px;background:#4fffb0;border-radius:7px;display:grid;place-items:center;font-weight:900;font-size:10px;color:#000}
+h1{font-size:15px;font-weight:600}
+.apibar{background:#16181c;border-bottom:1px solid #2a2d35;padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.apibar-row{display:flex;gap:8px;align-items:center}
+.apibar input{flex:1;background:#0e0f11;border:1px solid #2a2d35;border-radius:8px;padding:8px 12px;color:#e8eaf0;font-size:13px;outline:none;font-family:monospace}
+.apibar input:focus{border-color:#4fffb0}
+.apibar input::placeholder{color:#6b7080}
+.api-save{background:#4fffb0;color:#000;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer}
+.api-save.saved{background:#2a2d35;color:#4fffb0}
+.api-status{font-size:12px;color:#6b7080}
+.api-status.ok{color:#4fffb0}
+.api-status.err{color:#ff8fa0}
+main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.capture{position:relative;background:#16181c;border-bottom:1px solid #2a2d35;min-height:200px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#videoEl{width:100%;max-height:280px;object-fit:cover;display:none}
+#previewEl{width:100%;max-height:280px;object-fit:contain;display:none;background:#000}
+.idle{display:flex;flex-direction:column;align-items:center;gap:12px;padding:32px 16px;color:#6b7080;text-align:center;font-size:13px}
+.frame{position:absolute;inset:0;pointer-events:none;display:none}
+.frame.on{display:block}
+.frame::before,.frame::after,.frame .br,.frame .bl{content:'';position:absolute;width:24px;height:24px;border-color:#4fffb0;border-style:solid}
+.frame::before{top:12px;left:12px;border-width:2px 0 0 2px}
+.frame::after{top:12px;right:12px;border-width:2px 2px 0 0}
+.frame .br{bottom:12px;right:12px;border-width:0 2px 2px 0}
+.frame .bl{bottom:12px;left:12px;border-width:0 0 2px 2px}
+.overlay{position:absolute;inset:0;background:rgba(14,15,17,.85);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;backdrop-filter:blur(4px);z-index:10}
+.overlay.on{display:flex}
+.spin{width:36px;height:36px;border:3px solid #2a2d35;border-top-color:#4fffb0;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ov-txt{font-size:12px;color:#aaa}
+.controls{display:flex;gap:8px;padding:12px 14px;background:#16181c;border-bottom:1px solid #2a2d35;flex-shrink:0}
+.btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:11px 8px;border-radius:11px;font-size:13px;font-family:inherit;cursor:pointer;border:none}
+.btn-p{background:#4fffb0;color:#000;font-weight:600}
+.btn-p:disabled{background:#2a2d35;color:#6b7080;cursor:not-allowed}
+.btn-s{background:transparent;color:#e8eaf0;border:1px solid #2a2d35}
+.result{flex:1;display:flex;flex-direction:column;min-height:160px}
+.result-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #2a2d35;flex-shrink:0}
+.result-label{font-size:11px;color:#6b7080;letter-spacing:.08em;text-transform:uppercase}
+.char{font-size:11px;color:#6b7080}
+textarea{flex:1;width:100%;background:transparent;border:none;outline:none;resize:none;color:#e8eaf0;font-size:14px;line-height:1.9;padding:14px;font-family:inherit}
+textarea::placeholder{color:#6b7080;font-size:13px}
+.copy-bar{padding:12px 14px;background:#16181c;border-top:1px solid #2a2d35;display:flex;gap:8px;flex-shrink:0}
+.err-banner{background:#ff4f6d22;border:1px solid #ff4f6d44;border-radius:10px;padding:10px 14px;font-size:13px;color:#ff8fa0;margin:8px 14px;display:none}
+.err-banner.on{display:block}
+#canvas,#fileInput{display:none}
 </style>
 </head>
 <body>
-
 <header>
-  <span style="font-size:22px">✍️</span>
-  <div>
-    <div class="title">手書き文字 解析</div>
-    <div class="sub">Powered by Claude Vision</div>
-  </div>
+  <div class="logo">OCR</div>
+  <h1>ELDIA Scanner</h1>
 </header>
 
+<div class="apibar">
+  <div class="apibar-row">
+    <input type="password" id="apiKeyInput" placeholder="Anthropic APIキー（sk-ant-api03-...）" autocomplete="off">
+    <button class="api-save" id="saveBtn">保存</button>
+  </div>
+  <div class="api-status" id="apiStatus">APIキーを入力してください</div>
+</div>
+
 <main>
-  <!-- APIキー -->
-  <div class="apikey-section">
-    <div class="apikey-label">ANTHROPIC API KEY</div>
-    <div class="apikey-row">
-      <input type="password" class="apikey-input" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
-      <button class="apikey-save" onclick="saveKey()">保存</button>
-    </div>
-    <div class="apikey-status" id="keyStatus">APIキーを入力してください</div>
+  <div class="capture">
+    <div class="idle" id="idle"><div style="font-size:40px">📷</div><div>カメラまたはファイルで<br>スキャンできます</div></div>
+    <video id="videoEl" autoplay playsinline muted></video>
+    <img id="previewEl" alt="">
+    <div class="frame" id="frame"><div class="br"></div><div class="bl"></div></div>
+    <div class="overlay" id="overlay"><div class="spin"></div><div class="ov-txt">OCR 解析中…</div></div>
   </div>
-
-  <!-- hidden inputs -->
-  <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
-  <input type="file" id="libraryInput" accept="image/*" class="hidden">
-
-  <!-- 選択前 -->
-  <div id="selectArea">
-    <div class="drop-area" onclick="document.getElementById('cameraInput').click()">
-      <div class="drop-icon">📷</div>
-      <div class="drop-title">カメラで撮影</div>
-      <div class="drop-sub">ノート・メモ・書類などを<br>撮影してください</div>
-    </div>
-    <button class="btn" onclick="document.getElementById('libraryInput').click()">📁 ライブラリから選択</button>
+  <div class="err-banner" id="errBanner"></div>
+  <div class="controls">
+    <button class="btn btn-s" id="btnCam">📷 カメラ</button>
+    <button class="btn btn-s" id="btnFile">📁 ファイル</button>
+    <button class="btn btn-p" id="btnScan" disabled>🔍 スキャン</button>
   </div>
-
-  <!-- プレビュー -->
-  <div id="previewArea" class="hidden">
-    <div class="preview-wrap">
-      <img id="previewImg" class="preview-img" src="" alt="">
-      <button class="close-btn" onclick="reset()">✕</button>
+  <div class="result">
+    <div class="result-head">
+      <span class="result-label">抽出テキスト</span>
+      <span class="char" id="charCount">0 文字</span>
     </div>
-    <button class="btn btn-primary" id="analyzeBtn" onclick="analyze()">解析する</button>
-  </div>
-
-  <!-- ローディング -->
-  <div id="loadingArea" class="hidden spinner-wrap">
-    <div class="spinner"></div>
-    <div style="font-size:13px;color:#666">手書き文字を解析中...</div>
-  </div>
-
-  <!-- エラー -->
-  <div id="errorArea" class="error-box hidden"></div>
-
-  <!-- 結果 -->
-  <div id="resultArea" class="hidden">
-    <div class="result-card">
-      <div class="result-label">読み取り結果</div>
-      <div class="result-text" id="resultText"></div>
+    <textarea id="output" placeholder="スキャン結果がここに表示されます…"></textarea>
+    <div class="copy-bar">
+      <button class="btn btn-p" style="flex:1" id="copyBtn">📋 コピー</button>
+      <button class="btn btn-s" style="flex:0 0 auto;padding:11px 16px" id="clearBtn">🗑</button>
     </div>
-    <div class="note-box hidden" id="noteBox"></div>
-    <button class="btn" onclick="copyText()">📋 テキストをコピー</button>
-    <button class="btn btn-ghost" onclick="reset()">もう一度撮影する</button>
   </div>
 </main>
 
+<canvas id="canvas"></canvas>
+<input type="file" id="fileInput" accept="image/*">
+
 <script>
-const PROMPT = `この画像に含まれる手書き文字をすべて読み取り、以下の形式で出力してください。
+(function() {
+  var stream = null, cameraOn = false, currentB64 = null;
 
-【読み取り結果】
-（手書き文字をそのまま忠実に書き起こす。改行や段落構造も維持すること）
+  var video    = document.getElementById('videoEl');
+  var preview  = document.getElementById('previewEl');
+  var idle     = document.getElementById('idle');
+  var frame    = document.getElementById('frame');
+  var overlay  = document.getElementById('overlay');
+  var btnScan  = document.getElementById('btnScan');
+  var btnCam   = document.getElementById('btnCam');
+  var btnFile  = document.getElementById('btnFile');
+  var output   = document.getElementById('output');
+  var errBanner= document.getElementById('errBanner');
+  var canvas   = document.getElementById('canvas');
+  var apiInput = document.getElementById('apiKeyInput');
+  var saveBtn  = document.getElementById('saveBtn');
+  var apiStatus= document.getElementById('apiStatus');
+  var charCount= document.getElementById('charCount');
+  var copyBtn  = document.getElementById('copyBtn');
+  var clearBtn = document.getElementById('clearBtn');
+  var fileInput= document.getElementById('fileInput');
 
-【補足】
-（読み取りが難しい箇所、不明な文字、注意点があれば記載。問題なければ「特になし」）`;
+  // ── API Key ──
+  saveBtn.addEventListener('click', function() {
+    var k = apiInput.value.trim();
+    if (!k) {
+      apiStatus.className = 'api-status err';
+      apiStatus.textContent = '⚠ キーが空です';
+      return;
+    }
+    if (k.indexOf('sk-ant-') !== 0) {
+      apiStatus.className = 'api-status err';
+      apiStatus.textContent = '⚠ 正しいキーは sk-ant- で始まります';
+      return;
+    }
+    try { localStorage.setItem('eldia_api_key', k); } catch(e) {}
+    saveBtn.className = 'api-save saved';
+    saveBtn.textContent = '✓ 保存済';
+    apiStatus.className = 'api-status ok';
+    apiStatus.textContent = '✓ APIキーが保存されました';
+  });
 
-let base64Data = null;
-let mainText = "";
-let apiKey = localStorage.getItem("anthropic_key") || "";
+  apiInput.addEventListener('input', function() {
+    saveBtn.className = 'api-save';
+    saveBtn.textContent = '保存';
+    apiStatus.className = 'api-status';
+    apiStatus.textContent = '変更されました。保存してください';
+  });
 
-// 起動時にキー復元
-window.onload = () => {
-  if (apiKey) {
-    document.getElementById("apiKeyInput").value = apiKey;
-    document.getElementById("keyStatus").textContent = "✅ APIキー設定済み";
+  function getKey() {
+    try { return localStorage.getItem('eldia_api_key') || apiInput.value.trim(); }
+    catch(e) { return apiInput.value.trim(); }
   }
-};
 
-function saveKey() {
-  apiKey = document.getElementById("apiKeyInput").value.trim();
-  if (!apiKey) return;
-  localStorage.setItem("anthropic_key", apiKey);
-  document.getElementById("keyStatus").textContent = "✅ APIキー保存済み";
-}
+  // ── Camera ──
+  btnCam.addEventListener('click', function() {
+    if (cameraOn) { stopCamera(); } else { startCamera(); }
+  });
 
-function show(id) { document.getElementById(id).classList.remove("hidden"); }
-function hide(id) { document.getElementById(id).classList.add("hidden"); }
+  function startCamera() {
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(function(s) {
+        stream = s;
+        video.srcObject = stream;
+        video.style.display = 'block';
+        preview.style.display = 'none';
+        idle.style.display = 'none';
+        frame.classList.add('on');
+        cameraOn = true;
+        btnCam.textContent = '⏹ 停止';
+        currentB64 = null;
+        btnScan.disabled = false;
+        btnScan.textContent = '📸 撮影';
+      })
+      .catch(function(e) { showErr('カメラエラー: ' + e.message); });
+  }
 
-// ファイル処理
-function handleFile(file) {
-  if (!file) return;
-  base64Data = null;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      const MAX = 1024;
-      let w = img.width, h = img.height;
-      if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-      else { w = Math.round(w * MAX / h); h = MAX; }
-      const canvas = document.createElement("canvas");
-      canvas.width = w; canvas.height = h;
-      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-      const jpeg = canvas.toDataURL("image/jpeg", 0.85);
-      base64Data = jpeg.split(",")[1];
-      document.getElementById("previewImg").src = jpeg;
-      hide("selectArea");
-      hide("errorArea");
-      hide("resultArea");
-      show("previewArea");
+  function stopCamera() {
+    if (stream) { stream.getTracks().forEach(function(t){ t.stop(); }); stream = null; }
+    video.style.display = 'none';
+    frame.classList.remove('on');
+    cameraOn = false;
+    btnCam.textContent = '📷 カメラ';
+    if (!currentB64) { idle.style.display = 'flex'; btnScan.disabled = true; }
+    btnScan.textContent = '🔍 スキャン';
+  }
+
+  // ── File ──
+  btnFile.addEventListener('click', function() { fileInput.click(); });
+  fileInput.addEventListener('change', function(e) {
+    var file = e.target.files[0]; if (!file) return;
+    stopCamera();
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var url = ev.target.result;
+      preview.src = url; preview.style.display = 'block';
+      idle.style.display = 'none';
+      currentB64 = url.split(',')[1];
+      btnScan.disabled = false; btnScan.textContent = '🔍 OCR実行';
     };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
 
-document.getElementById("cameraInput").addEventListener("change", e => handleFile(e.target.files[0]));
-document.getElementById("libraryInput").addEventListener("change", e => handleFile(e.target.files[0]));
+  // ── OCR ──
+  btnScan.addEventListener('click', function() {
+    var key = getKey();
+    if (!key || key.indexOf('sk-ant-') !== 0) {
+      showErr('APIキーを入力して「保存」してください');
+      return;
+    }
 
-// 解析
-async function analyze() {
-  if (!base64Data) return;
-  if (!apiKey) {
-    show("errorArea");
-    document.getElementById("errorArea").textContent = "⚠️ APIキーを入力して「保存」してください";
-    return;
-  }
-  hide("errorArea");
-  hide("resultArea");
-  document.getElementById("analyzeBtn").disabled = true;
-  show("loadingArea");
+    var b64 = currentB64;
+    if (cameraOn) {
+      canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      var url = canvas.toDataURL('image/jpeg', 0.92);
+      b64 = url.split(',')[1];
+      preview.src = url; preview.style.display = 'block';
+      stopCamera(); idle.style.display = 'none';
+    }
+    if (!b64) { showErr('画像を選択してください'); return; }
 
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
+    overlay.classList.add('on');
+    btnScan.disabled = true;
+    showErr('');
+
+    fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01"
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-allow-browser': 'true'
       },
       body: JSON.stringify({
-        model: "claude-opus-4-6",
-        max_tokens: 1024,
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
         messages: [{
-          role: "user",
+          role: 'user',
           content: [
-            { type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64Data } },
-            { type: "text", text: PROMPT }
+            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } },
+            { type: 'text', text: 'この画像のテキストをすべて抽出してください。テキストのみ出力。説明不要。' }
           ]
         }]
       })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.error) { showErr('APIエラー: ' + data.error.message); return; }
+      var text = (data.content||[]).map(function(b){ return b.text||''; }).join('').trim();
+      output.value = text || 'テキストが見つかりませんでした';
+      charCount.textContent = output.value.length + ' 文字';
+    })
+    .catch(function(e) { showErr('通信エラー: ' + e.message); })
+    .finally(function() {
+      overlay.classList.remove('on');
+      btnScan.disabled = false;
     });
-
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-
-    const fullText = (data.content || []).map(b => b.text || "").join("");
-    const mainMatch = fullText.match(/【読み取り結果】\n?([\s\S]*?)(?=【補足】|$)/);
-    const noteMatch = fullText.match(/【補足】\n?([\s\S]*?)$/);
-    mainText = mainMatch?.[1]?.trim() || fullText;
-    const note = noteMatch?.[1]?.trim();
-
-    document.getElementById("resultText").textContent = mainText;
-    const noteEl = document.getElementById("noteBox");
-    if (note && note !== "特になし") {
-      noteEl.textContent = "💡 " + note;
-      noteEl.classList.remove("hidden");
-    } else {
-      noteEl.classList.add("hidden");
-    }
-    show("resultArea");
-  } catch (e) {
-    show("errorArea");
-    document.getElementById("errorArea").textContent = "⚠️ " + e.message;
-  } finally {
-    hide("loadingArea");
-    document.getElementById("analyzeBtn").disabled = false;
-  }
-}
-
-function reset() {
-  base64Data = null;
-  mainText = "";
-  document.getElementById("previewImg").src = "";
-  document.getElementById("cameraInput").value = "";
-  document.getElementById("libraryInput").value = "";
-  hide("previewArea");
-  hide("resultArea");
-  hide("errorArea");
-  show("selectArea");
-}
-
-function copyText() {
-  if (!mainText) return;
-  navigator.clipboard.writeText(mainText).catch(() => {
-    const ta = document.createElement("textarea");
-    ta.value = mainText;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand("copy");
-    document.body.removeChild(ta);
   });
-}
+
+  output.addEventListener('input', function() {
+    charCount.textContent = output.value.length + ' 文字';
+  });
+
+  copyBtn.addEventListener('click', function() {
+    if (!output.value) return;
+    navigator.clipboard.writeText(output.value).then(function() {
+      copyBtn.textContent = '✓ コピー完了';
+      setTimeout(function(){ copyBtn.textContent = '📋 コピー'; }, 2000);
+    });
+  });
+
+  clearBtn.addEventListener('click', function() {
+    output.value = ''; charCount.textContent = '0 文字';
+    preview.style.display = 'none'; currentB64 = null;
+    idle.style.display = 'flex'; btnScan.disabled = true;
+    showErr('');
+  });
+
+  function showErr(msg) {
+    errBanner.textContent = msg;
+    errBanner.className = msg ? 'err-banner on' : 'err-banner';
+  }
+
+  // Restore key
+  try {
+    var saved = localStorage.getItem('eldia_api_key');
+    if (saved) {
+      apiInput.value = saved;
+      saveBtn.className = 'api-save saved';
+      saveBtn.textContent = '✓ 保存済';
+      apiStatus.className = 'api-status ok';
+      apiStatus.textContent = '✓ APIキーが読み込まれました';
+    }
+  } catch(e) {}
+})();
 </script>
 </body>
 </html>
